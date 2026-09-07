@@ -7,11 +7,8 @@ const requiredFiles = [
   "site/index.html",
   "site/styles.css",
   "site/app.js",
-  "site/projects/pid-controller.html",
-  "site/projects/ros-chat.html",
-  "site/projects/bluerov-simulation.html",
-  "site/projects/perception.html",
-  "site/projects/mission-debug.html",
+  "site/task1.html",
+  "site/telemetry.html",
   ".github/workflows/pages.yml",
 ];
 
@@ -20,7 +17,7 @@ for (const file of requiredFiles) {
 }
 
 const readme = readFileSync(join(root, "README.md"), "utf8");
-if (!readme.includes("Robotics Showcase") || !readme.includes("GitHub Pages site")) {
+if (!readme.includes("Mission Telemetry Showcase") || !readme.includes("GitHub Pages")) {
   throw new Error("README does not contain the technical portfolio introduction and site link");
 }
 
@@ -28,13 +25,14 @@ for (const file of requiredFiles.filter((item) => item.startsWith("site/") && it
   const content = readFileSync(join(root, file), "utf8");
   if (!content.includes("styles.css")) throw new Error(`${file} does not load the shared stylesheet`);
 }
-if (!readFileSync(join(root, "site/index.html"), "utf8").includes("app.js")) {
+const index = readFileSync(join(root, "site/index.html"), "utf8");
+if (!index.includes("app.js") || !index.includes("view-tab") || !index.includes("telemetry-output")) {
   throw new Error("Landing page does not load the interaction script");
 }
 
-const pageFiles = readdirSync(join(root, "site/projects"));
-if (pageFiles.filter((file) => file.endsWith(".html")).length !== 5) {
-  throw new Error("The site must contain five project pages");
+const pageFiles = readdirSync(join(root, "site"));
+if (!pageFiles.includes("task1.html") || !pageFiles.includes("telemetry.html")) {
+  throw new Error("The site must contain Task 1 and telemetry pages");
 }
 
 const ignore = readFileSync(join(root, ".gitignore"), "utf8");

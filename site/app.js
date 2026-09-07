@@ -1,20 +1,25 @@
-const filters = document.querySelectorAll(".filter");
-const cards = document.querySelectorAll(".card-link[data-category]");
+const tabs = document.querySelectorAll(".view-tab");
+const panels = document.querySelectorAll(".architecture-panel");
+const events = {
+  healthy: { code: "ROBOT_HEALTHY", text: "Robot operating normally" },
+  lost: { code: "FORMATION_LOST", text: "Robot left formation" },
+  rejoined: { code: "FORMATION_RESTORED", text: "Robot rejoined formation" },
+};
 
-filters.forEach((filter) => {
-  filter.addEventListener("click", () => {
-    const selected = filter.dataset.filter;
-    filters.forEach((button) => button.classList.toggle("is-active", button === filter));
-    cards.forEach((card) => {
-      const visible = selected === "all" || card.dataset.category === selected;
-      card.hidden = !visible;
-    });
+tabs.forEach((tab) => tab.addEventListener("click", () => {
+  const selected = tab.dataset.view;
+  tabs.forEach((item) => {
+    const active = item === tab;
+    item.classList.toggle("is-active", active);
+    item.setAttribute("aria-selected", active);
   });
-});
+  panels.forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === selected));
+}));
 
-if (window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
-  document.querySelectorAll(".card-link").forEach((card, index) => {
-    card.style.animationDelay = `${index * 70}ms`;
-    card.classList.add("reveal");
-  });
-}
+document.querySelectorAll("[data-event]").forEach((button) => button.addEventListener("click", () => {
+  const event = events[button.dataset.event];
+  const record = { kind: "telemetry", user_id: "user-2", code: event.code, text: event.text };
+  document.querySelector("#telemetry-output").textContent = JSON.stringify(record, null, 2);
+  document.querySelector("#telemetry-result").textContent = `Broadcast ${event.code} to every subscribed client`;
+  document.querySelectorAll("[data-event]").forEach((item) => item.classList.toggle("is-selected", item === button));
+}));
