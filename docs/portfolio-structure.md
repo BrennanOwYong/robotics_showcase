@@ -1,6 +1,6 @@
 # Portfolio structure
 
-The repository is organised as one focused portfolio: Task 1 ROS 2 communication and the telemetry path built on top of it. The original ROS 2 package layout remains close to its package boundary so that manifests and launch files stay usable.
+The repository is organised as two focused portfolio views: Task 1 swarm communication network architecture and Task 2 refined ROS2 telemetry with CPU resource allocation. The original ROS 2 package layout remains close to its package boundary so that manifests and launch files stay usable.
 
 ## Why this structure
 
@@ -8,7 +8,7 @@ Robotics projects are easier to evaluate when the problem statement, system boun
 
 ## What is tracked
 
-- ROS 2 package source, launch files, configuration, interfaces, and technical notes for Task 1 and telemetry.
+- ROS 2 package source, launch files, configuration, interfaces, and technical notes for Task 1 and Task 2.
 - Portfolio pages and the Pages deployment workflow.
 - Existing project READMEs where they provide setup or architecture information.
 

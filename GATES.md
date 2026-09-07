@@ -2,14 +2,14 @@
 
 OWNS: README.md, .gitignore, docs/**, site/**, scripts/**, .github/**, GATES.md
 
-Scope: A focused, public-facing Task 1 and telemetry portfolio with concise technical documentation and a deployable GitHub Pages site.
+Scope: A focused, public-facing Task 1 and Task 2 portfolio with concise technical documentation and a deployable GitHub Pages site.
 
 - [x] G1: The repository has a clear public-facing README with project links and setup guidance.
   CHECK: node scripts/verify_showcase.mjs
   EXPECT: SHOWCASE_VERIFICATION_PASSED
   EVIDENCE: `node scripts/verify_showcase.mjs` passed.
 
-- [x] G2: The site contains a working landing page plus focused Task 1 and telemetry pages with interactive architecture displays.
+- [x] G2: The site contains a working landing page plus focused Task 1 and Task 2 pages with interactive architecture displays.
   CHECK: node scripts/verify_showcase.mjs
   EXPECT: SHOWCASE_VERIFICATION_PASSED
   EVIDENCE: local verification passed; GitHub Pages deployment run 34138583897 passed; live URL returns HTTP 200.

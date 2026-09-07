@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Task 1 Architecture — Robotics Showcase</title><link rel="stylesheet" href="styles.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Task 1: Swarm Communication Network Architecture — Robotics Showcase</title><link rel="stylesheet" href="styles.css"></head>
 <body>
-<header class="topbar"><div class="wrap nav"><a class="brand" href="index.html">ROBOTICS / SHOWCASE</a><nav><a href="index.html#architecture">Architecture</a><a href="telemetry.html">Telemetry</a><a href="https://github.com/BrennanOwYong/robotics_showcase">README</a></nav></div></header>
+<header class="topbar"><div class="wrap nav"><a class="brand" href="index.html">ROBOTICS / SHOWCASE</a><nav><a href="index.html#architecture">Task 1</a><a href="telemetry.html">Task 2</a><a href="https://github.com/BrennanOwYong/robotics_showcase">README</a></nav></div></header>
 <main>
-  <section class="wrap project-hero"><div class="eyebrow">Task 1 / System animation</div><h1>From empty graph<br>to shared state.</h1><p class="lede">Watch the system start, register clients, create topic routes, and deliver one validated record to every terminal.</p><a class="back" href="index.html">← Back to the interactive overview</a></section>
+  <section class="wrap project-hero"><div class="eyebrow">Task 1: Swarm Communication Network Architecture</div><h1>From empty graph<br>to shared state.</h1><p class="lede">Watch the system start, register clients, create topic routes, and deliver one validated record to every terminal.</p><a class="back" href="index.html">← Back to the interactive overview</a></section>
   <section class="wrap section compact-grid"><article class="card"><div class="eyebrow">Problem</div><h2>Keep every terminal informed.</h2><p>Clients need identity, join and leave events, shared messages, active-user counts, and recent history without direct client-to-client coupling.</p></article><article class="card"><div class="eyebrow">Built</div><h2>One owner for shared state.</h2><p>The hub assigns IDs, validates sender ownership, routes records, and publishes one consistent view to all clients.</p></article></section>
   <section class="wrap section" id="system-animation"><div class="section-head"><div><div class="eyebrow">Run the sequence</div><h2>How the system starts and works.</h2></div><p>Play the full lifecycle or select a step. The animated packet represents the control or data record moving through the ROS 2 graph.</p></div>
     <div class="animation-shell" data-animation>

@@ -17,7 +17,7 @@ for (const file of requiredFiles) {
 }
 
 const readme = readFileSync(join(root, "README.md"), "utf8");
-if (!readme.includes("Mission Telemetry Showcase") || !readme.includes("GitHub Pages")) {
+if (!readme.includes("Swarm Communication Network Architecture") || !readme.includes("Refined ROS2 Telemetry") || !readme.includes("GitHub Pages")) {
   throw new Error("README does not contain the technical portfolio introduction and site link");
 }
 

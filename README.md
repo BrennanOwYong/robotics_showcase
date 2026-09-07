@@ -1,17 +1,19 @@
-# ROS 2 Mission Telemetry Showcase
+# Task 1: Swarm Communication Network Architecture
 
-> A technical portfolio of a ROS 2 group communication system and its telemetry path.
+## Task 2: Refined ROS2 Telemetry and CPU Resource Allocation
+
+> A technical portfolio of a ROS 2 swarm communication network and its refined telemetry path.
 
 [![Open the interactive portfolio](https://img.shields.io/badge/portfolio-open%20GitHub%20Pages-0c7168?style=flat-square)](https://brennanowyong.github.io/robotics_showcase/)
 [![ROS 2](https://img.shields.io/badge/ROS%202-Jazzy-22313f?style=flat-square)](https://www.ros.org/)
 
-Open the [interactive GitHub Pages portfolio](https://brennanowyong.github.io/robotics_showcase/) for the visual architecture maps and telemetry message walkthrough. This README is the technical summary.
+Open the [interactive GitHub Pages portfolio](https://brennanowyong.github.io/robotics_showcase/) for the animated Task 1 architecture and Task 2 telemetry walkthrough. This README is the technical summary.
 
 ## What was built
 
-Task 1 is a ROS 2 hub-and-spoke group communication system. Each terminal runs one ROS 2 client. One background hub owns registration, identity, routing, persistence, and shared system state.
+Task 1 is a ROS 2 swarm communication network architecture. Each terminal runs one ROS 2 client. One background hub owns registration, identity, routing, persistence, and shared system state.
 
-Telemetry extends the same transport. A client publishes a structured event on its outbound topic. The hub validates the sender and broadcasts one record to every subscribed client. This lets a robot report state changes such as formation loss to the whole system.
+Task 2 refines the ROS2 telemetry path and frames CPU resource allocation as part of the runtime design. A client publishes a structured event on its outbound topic. The hub validates the sender and broadcasts one record to every subscribed client. This lets a robot report state changes such as formation loss to the whole system.
 
 ## Architecture
 
@@ -48,7 +50,7 @@ Topics handle continuous records:
 | Ten-record display history | The terminal stays readable while retaining recent context. |
 | JSON telemetry records | The message is easy to inspect, log, and extend. |
 
-## Telemetry record
+## Task 2 telemetry record
 
 ```json
 {
@@ -86,7 +88,7 @@ Start the command in three terminals. The first client starts the hub. Later cli
 node scripts/verify_showcase.mjs
 ```
 
-The check validates the README, interactive landing page, Task 1 page, telemetry page, shared CSS, deployment workflow, and generated-output rules.
+The check validates the README, interactive landing page, Task 1 page, Task 2 telemetry page, shared CSS, deployment workflow, and generated-output rules.
 
 ## License
 
