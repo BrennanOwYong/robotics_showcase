@@ -63,6 +63,14 @@ Topics handle continuous records:
 
 Task 2 uses the telemetry record as the basis for refined runtime handling and CPU resource allocation. It is shown as a separate project in the portfolio.
 
+The current Task 2 architecture has three boundaries:
+
+1. A client detects a robot-state change and publishes a structured record on `/ros_chat/client/<user-id>`.
+2. The hub validates the sender, adds the canonical event fields, and publishes the record on `/ros_chat/broadcast`.
+3. Each client receives the same event. Telemetry processing is treated as a named workload so CPU allocation can protect robot-control work and defer presentation work when required.
+
+The key deltas are explicit message semantics, hub-owned validation, fleet-wide broadcast visibility, and a separate runtime resource-allocation boundary. The interactive [Task 2 page](site/telemetry.html) shows the current architecture and switches between the architecture and delta views.
+
 ## Source and setup
 
 The Task 1 package source is under [`ros2_ws/src/ros_chat/`](ros2_ws/src/ros_chat/). The Task 1 design notes are under [`ros2_ws/docs/`](ros2_ws/docs/). Task 2 is documented separately on its [project page](site/telemetry.html).
