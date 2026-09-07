@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Task 1: Swarm Communication Network Architecture — Robotics Showcase</title><link rel="stylesheet" href="styles.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Task 1: Swarm Communication Network Architecture — Robotics Showcase</title><link rel="stylesheet" href="styles.css?v=4"></head>
 <body>
 <header class="topbar"><div class="wrap nav"><a class="brand" href="index.html">ROBOTICS / SHOWCASE</a><nav><a href="index.html#projects">Projects</a><a href="telemetry.html">Task 2</a><a href="https://github.com/BrennanOwYong/robotics_showcase">README</a></nav></div></header>
 <main>
@@ -15,5 +15,5 @@
     </div>
   </section>
   <section class="wrap section split"><div><div class="eyebrow">Architecture decisions</div><h2>Broadcast is the system boundary.</h2></div><div class="decision-stack"><p><strong>One publisher.</strong> The hub publishes one validated record on the shared broadcast topic.</p><p><strong>Many subscribers.</strong> Every ROS 2 client subscribes and receives its own delivered copy.</p><p><strong>Persistence is separate.</strong> The hub also appends recent history, but storage is not the delivery path.</p><p><strong>Ownership stays clear.</strong> The hub validates the sender before it broadcasts.</p></div></section>
-</main><footer class="site-footer"><div class="wrap"><a href="telemetry.html">View Task 2: refined telemetry →</a></div></footer><script src="app.js"></script>
+</main><footer class="site-footer"><div class="wrap"><a href="telemetry.html">View Task 2: refined telemetry →</a></div></footer><script src="app.js?v=4"></script>
 </body></html>
