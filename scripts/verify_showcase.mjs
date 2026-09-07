@@ -24,7 +24,7 @@ if (!readme.includes("Robotics Showcase") || !readme.includes("GitHub Pages site
   throw new Error("README does not contain the technical portfolio introduction and site link");
 }
 
-for (const file of requiredFiles.filter((item) => item.startsWith("site/") && item !== "site/styles.css")) {
+for (const file of requiredFiles.filter((item) => item.startsWith("site/") && item.endsWith(".html"))) {
   const content = readFileSync(join(root, file), "utf8");
   if (!content.includes("styles.css")) throw new Error(`${file} does not load the shared stylesheet`);
 }
