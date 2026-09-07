@@ -1,6 +1,6 @@
 # Portfolio structure
 
-The repository is organised as two focused portfolio views: Task 1 swarm communication network architecture and Task 2 refined ROS2 telemetry with CPU resource allocation. The original ROS 2 package layout remains close to its package boundary so that manifests and launch files stay usable.
+The repository is organised as two independent portfolio views: Task 1 swarm communication network architecture and Task 2 refined ROS2 telemetry with CPU resource allocation. The projects are presented separately because they solve different systems problems.
 
 ## Why this structure
 

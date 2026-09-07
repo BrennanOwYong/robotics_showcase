@@ -2,7 +2,7 @@
 
 ## Task 2: Refined ROS2 Telemetry and CPU Resource Allocation
 
-> A technical portfolio of a ROS 2 swarm communication network and its refined telemetry path.
+> A technical portfolio of two independent ROS2 systems.
 
 [![Open the interactive portfolio](https://img.shields.io/badge/portfolio-open%20GitHub%20Pages-0c7168?style=flat-square)](https://brennanowyong.github.io/robotics_showcase/)
 [![ROS 2](https://img.shields.io/badge/ROS%202-Jazzy-22313f?style=flat-square)](https://www.ros.org/)
@@ -13,9 +13,9 @@ Open the [interactive GitHub Pages portfolio](https://brennanowyong.github.io/ro
 
 Task 1 is a ROS 2 swarm communication network architecture. Each terminal runs one ROS 2 client. One background hub owns registration, identity, routing, persistence, and shared system state.
 
-Task 2 refines the ROS2 telemetry path and frames CPU resource allocation as part of the runtime design. A client publishes a structured event on its outbound topic. The hub validates the sender and broadcasts one record to every subscribed client. This lets a robot report state changes such as formation loss to the whole system.
+Task 2 is a separate ROS2 telemetry and CPU resource allocation project. It addresses how telemetry is represented, refined, and scheduled as a runtime workload. It is documented independently from the Task 1 swarm communication network.
 
-## Architecture
+## Task 1 architecture
 
 ```text
 client A ── /ros_chat/client/user-1 ──┐
@@ -37,7 +37,7 @@ Topics handle continuous records:
 - `/ros_chat/broadcast`: one validated record delivered to every client.
 - `/ros_chat/users`: active-user state.
 
-## Key design decisions
+## Task 1 key design decisions
 
 | Decision | Reason |
 | --- | --- |
@@ -50,7 +50,7 @@ Topics handle continuous records:
 | Ten-record display history | The terminal stays readable while retaining recent context. |
 | JSON telemetry records | The message is easy to inspect, log, and extend. |
 
-## Task 2 telemetry record
+## Task 2 scope
 
 ```json
 {
@@ -61,11 +61,11 @@ Topics handle continuous records:
 }
 ```
 
-The shared topic provides delivery and visibility. It is not an authentication or encryption boundary.
+Task 2 uses the telemetry record as the basis for refined runtime handling and CPU resource allocation. It is shown as a separate project in the portfolio.
 
 ## Source and setup
 
-The package source is under [`ros2_ws/src/ros_chat/`](ros2_ws/src/ros_chat/). The design notes are under [`ros2_ws/docs/`](ros2_ws/docs/).
+The Task 1 package source is under [`ros2_ws/src/ros_chat/`](ros2_ws/src/ros_chat/). The Task 1 design notes are under [`ros2_ws/docs/`](ros2_ws/docs/). Task 2 is documented separately on its [project page](site/telemetry.html).
 
 To use the package in a separate ROS 2 Jazzy workspace:
 
@@ -80,7 +80,7 @@ source install/setup.bash
 ros2 run ros_chat chat_client.py
 ```
 
-Start the command in three terminals. The first client starts the hub. Later clients register with it.
+Start the command in three terminals for Task 1. The first client starts the hub. Later clients register with it.
 
 ## Verification
 
