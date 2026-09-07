@@ -27,8 +27,12 @@ for (const file of requiredFiles.filter((item) => item.startsWith("site/") && it
 }
 const index = readFileSync(join(root, "site/index.html"), "utf8");
 const task1 = readFileSync(join(root, "site/task1.html"), "utf8");
+const telemetry = readFileSync(join(root, "site/telemetry.html"), "utf8");
 if (!index.includes("project-pair") || !index.includes("Task 1") || !index.includes("Task 2") || !task1.includes("data-animation") || !task1.includes("data-action=\"next\"")) {
   throw new Error("Landing page does not separate the two projects or expose the Task 1 animation");
+}
+if (!telemetry.includes("data-telemetry-architecture") || !telemetry.includes("data-telemetry-view") || !telemetry.includes("CPU allocation boundary") || !telemetry.includes("delta-grid")) {
+  throw new Error("Task 2 page does not expose the architecture delta and resource allocation views");
 }
 
 const pageFiles = readdirSync(join(root, "site"));

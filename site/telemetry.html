@@ -1,16 +1,83 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Task 2: Refined ROS2 Telemetry and CPU Resource Allocation — Robotics Showcase</title><link rel="stylesheet" href="styles.css"></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Task 2 architecture: refined ROS2 telemetry and CPU resource allocation.">
+  <title>Task 2: Refined ROS2 Telemetry and CPU Resource Allocation — Robotics Showcase</title>
+  <link rel="stylesheet" href="styles.css?v=5">
+</head>
 <body>
-<header class="topbar"><div class="wrap nav"><a class="brand" href="index.html">ROBOTICS / SHOWCASE</a><nav><a href="index.html#architecture">Task 1</a><a href="task1.html">Task 1 animation</a><a href="https://github.com/BrennanOwYong/robotics_showcase">README</a></nav></div></header>
-<main><section class="wrap project-hero"><div class="eyebrow">Task 2: Refined ROS2 Telemetry and CPU Resource Allocation</div><h1>Make robot faults visible.</h1><p class="lede">Telemetry uses the validated client-to-hub and hub-to-all-clients path, with a refined runtime view for deciding how telemetry work should share CPU resources with the rest of the system.</p><a class="back" href="index.html">← Back to the interactive overview</a></section>
-<section class="wrap section"><div class="telemetry-story"><div class="story-step"><span>01</span><div><h3>Detect</h3><p>A client observes a robot state change, such as leaving formation.</p></div></div><div class="story-line"></div><div class="story-step"><span>02</span><div><h3>Publish</h3><p>The client sends a structured telemetry record on its outbound topic.</p></div></div><div class="story-line"></div><div class="story-step"><span>03</span><div><h3>Refine</h3><p>Telemetry work is treated as a runtime workload that must be allocated without obscuring control and communication paths.</p></div></div><div class="story-line"></div><div class="story-step"><span>04</span><div><h3>React</h3><p>Every subscribed client can display, log, or use the event in its next decision.</p></div></div></div></section>
-<section class="wrap section split"><div><div class="eyebrow">Message contract</div><h2>One shape for a meaningful event.</h2></div><pre class="code-card">{
+  <header class="topbar">
+    <div class="wrap nav">
+      <a class="brand" href="index.html">ROBOTICS / SHOWCASE</a>
+      <nav><a href="index.html#projects">Projects</a><a href="task1.html">Task 1</a><a href="https://github.com/BrennanOwYong/robotics_showcase">README</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap project-hero">
+      <div class="eyebrow">Task 2 · Refined ROS2 Telemetry and CPU Resource Allocation</div>
+      <h1>Make robot state visible, routable, and schedulable.</h1>
+      <p class="lede">This project refines telemetry from an ad-hoc event into a defined ROS 2 message path and a visible runtime workload. Use the switch below to compare the starting model with the current architecture.</p>
+      <a class="back" href="index.html">← Back to the independent project overview</a>
+    </section>
+
+    <section class="wrap section" data-telemetry-architecture>
+      <div class="section-heading"><div><div class="eyebrow">Architecture delta</div><h2>What changed in the system model.</h2></div><p class="section-note">The transport stays familiar. The telemetry boundary becomes explicit.</p></div>
+      <div class="telemetry-toolbar" role="group" aria-label="Architecture view">
+        <button class="telemetry-view-button is-active" type="button" data-telemetry-view="current" aria-pressed="true">Current architecture</button>
+        <button class="telemetry-view-button" type="button" data-telemetry-view="delta" aria-pressed="false">Show deltas</button>
+      </div>
+
+      <div class="telemetry-view-panel is-active" data-telemetry-panel="current">
+        <div class="telemetry-architecture" aria-label="Current telemetry architecture diagram">
+          <div class="telemetry-layer layer-source"><span class="layer-label">01 · signal source</span><div class="telemetry-node"><strong>Robot / client node</strong><small>observes formation or health state</small></div></div>
+          <div class="telemetry-arrow">publish structured record <span>↓</span></div>
+          <div class="telemetry-layer layer-transport"><span class="layer-label">02 · ROS 2 transport</span><div class="telemetry-node"><strong>/ros_chat/client/&lt;user-id&gt;</strong><small>one outbound topic owned by the client</small></div><div class="telemetry-node node-accent"><strong>ROS CHAT HUB</strong><small>identifies sender · validates payload · adds timestamp</small></div><div class="telemetry-node"><strong>/ros_chat/broadcast</strong><small>shared topic delivered to all clients</small></div></div>
+          <div class="telemetry-arrow">fan out one validated event <span>↓</span></div>
+          <div class="telemetry-layer layer-runtime"><span class="layer-label">03 · runtime handling</span><div class="telemetry-node"><strong>Telemetry processing</strong><small>parse, classify, and expose the event</small></div><div class="telemetry-node node-resource"><strong>CPU allocation boundary</strong><small>reason about telemetry work beside control work</small></div><div class="telemetry-node"><strong>Client response</strong><small>display, log, or select a response</small></div></div>
+          <div class="telemetry-side-effect"><span>persistent / observable output</span><strong>Shared event record</strong><small>same telemetry item is available to every subscribed client</small></div>
+        </div>
+      </div>
+
+      <div class="telemetry-view-panel" data-telemetry-panel="delta" hidden>
+        <div class="delta-grid">
+          <article class="delta-card"><span class="delta-index">01</span><div><div class="eyebrow">Message contract</div><h3>Implicit state → structured event</h3><p><span class="delta-before">Before</span> A state change is only a local observation.</p><p><span class="delta-after">Now</span> The event carries <code>kind</code>, <code>user_id</code>, <code>code</code>, and <code>text</code>.</p></div></article>
+          <article class="delta-card"><span class="delta-index">02</span><div><div class="eyebrow">Validation boundary</div><h3>Local report → hub-owned record</h3><p><span class="delta-before">Before</span> Consumers must infer who produced the signal.</p><p><span class="delta-after">Now</span> The hub validates the sender and publishes one canonical record.</p></div></article>
+          <article class="delta-card"><span class="delta-index">03</span><div><div class="eyebrow">Distribution</div><h3>Single recipient → fleet visibility</h3><p><span class="delta-before">Before</span> A fault can remain inside one client.</p><p><span class="delta-after">Now</span> `/ros_chat/broadcast` gives each subscribed client the same event.</p></div></article>
+          <article class="delta-card"><span class="delta-index">04</span><div><div class="eyebrow">Resource model</div><h3>Hidden callback → explicit workload</h3><p><span class="delta-before">Before</span> Telemetry cost is mixed into general node activity.</p><p><span class="delta-after">Now</span> Telemetry processing is a named workload for CPU allocation decisions.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section split telemetry-detail">
+      <div><div class="eyebrow">Runtime sequence</div><h2>One event. Four controlled boundaries.</h2><p class="muted">The important change is not only the JSON shape. It is the ownership of each step.</p></div>
+      <div class="telemetry-runtime-list"><div><b>01</b><span><strong>Detect</strong> The client observes a robot state change.</span></div><div><b>02</b><span><strong>Publish</strong> It sends the record on its own outbound topic.</span></div><div><b>03</b><span><strong>Refine</strong> The hub validates identity and produces the canonical event.</span></div><div><b>04</b><span><strong>React</strong> Each client receives the broadcast and can display, log, or act.</span></div></div>
+    </section>
+
+    <section class="wrap section split">
+      <div><div class="eyebrow">Message contract</div><h2>Small payload. Useful semantics.</h2><p class="muted">The contract stays easy to inspect while giving the runtime enough information to classify the event.</p></div>
+      <pre class="code-card">{
   "kind": "telemetry",
   "user_id": "user-2",
   "code": "FORMATION_LOST",
   "text": "Robot left formation"
-}</pre></section>
-<section class="wrap section compact-grid"><article class="card"><div class="eyebrow">Transport decision</div><h2>Reuse the broadcast path.</h2><p>A second transport would add another failure mode. Reusing the hub keeps telemetry visible to every client.</p></article><article class="card"><div class="eyebrow">Resource decision</div><h2>Protect the control path.</h2><p>Telemetry processing must be visible as a workload so CPU allocation can be reasoned about alongside communication and robot control.</p></article></section></main>
-<footer class="site-footer"><div class="wrap"><a href="task1.html">← View the Task 1 swarm architecture animation</a></div></footer>
-</body></html>
+}</pre>
+    </section>
+
+    <section class="wrap section resource-section">
+      <div class="section-heading"><div><div class="eyebrow">CPU resource allocation</div><h2>Make the trade-off visible.</h2></div><p class="section-note">The page separates message delivery from the runtime question: how much attention should telemetry receive?</p></div>
+      <div class="resource-board">
+        <div class="resource-row"><div><strong>Robot control</strong><small>time-sensitive decisions</small></div><div class="allocation-bar"><span class="allocation-segment control">protected control path</span></div><em>priority</em></div>
+        <div class="resource-row"><div><strong>Telemetry processing</strong><small>parse, classify, and expose</small></div><div class="allocation-bar"><span class="allocation-segment telemetry">bounded telemetry workload</span></div><em>budget</em></div>
+        <div class="resource-row"><div><strong>Logging / display</strong><small>human-facing observability</small></div><div class="allocation-bar"><span class="allocation-segment observability">deferred output</span></div><em>best effort</em></div>
+      </div>
+      <p class="resource-caption"><span class="pulse"></span> Design decision: keep control protected, give telemetry a visible allocation boundary, and allow presentation work to yield when resources are constrained.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><a href="task1.html">View Task 1: swarm communication network animation →</a></div></footer>
+  <script src="app.js?v=5"></script>
+</body>
+</html>

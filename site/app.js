@@ -24,6 +24,25 @@ document.querySelectorAll("[data-event]").forEach((button) => button.addEventLis
   document.querySelectorAll("[data-event]").forEach((item) => item.classList.toggle("is-selected", item === button));
 }));
 
+const telemetryArchitecture = document.querySelector("[data-telemetry-architecture]");
+if (telemetryArchitecture) {
+  const viewButtons = telemetryArchitecture.querySelectorAll("[data-telemetry-view]");
+  const viewPanels = telemetryArchitecture.querySelectorAll("[data-telemetry-panel]");
+  viewButtons.forEach((button) => button.addEventListener("click", () => {
+    const selected = button.dataset.telemetryView;
+    viewButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle("is-active", active);
+      item.setAttribute("aria-pressed", active);
+    });
+    viewPanels.forEach((panel) => {
+      const active = panel.dataset.telemetryPanel === selected;
+      panel.classList.toggle("is-active", active);
+      panel.hidden = !active;
+    });
+  }));
+}
+
 const animation = document.querySelector("[data-animation]");
 if (animation) {
   const scene = animation.querySelector("[data-scene]");
@@ -37,7 +56,7 @@ if (animation) {
     ["Step 3 · identity", "The hub assigns each client a running user ID and colour, then publishes the active-user state."],
     ["Step 4 · routing", "The hub subscribes to one outbound topic per client. Each route has an explicit owner."],
     ["Step 5 · publish", "A client sends one record to its own topic. The hub identifies the sender and validates the record."],
-    ["Step 6 · broadcast", "The hub publishes one shared record. DDS delivers it to every subscribed client."],
+    ["Step 6 · broadcast copies", "The hub publishes once. ROS 2 delivers a separate copy to Terminal A, Terminal B, and Terminal C. History storage is a separate side effect."],
   ];
   let current = 0;
   let timer;
