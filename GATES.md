@@ -9,10 +9,10 @@ Scope: A focused, public-facing Task 1 and telemetry portfolio with concise tech
   EXPECT: SHOWCASE_VERIFICATION_PASSED
   EVIDENCE: `node scripts/verify_showcase.mjs` passed.
 
-- [ ] G2: The site contains a working landing page plus focused Task 1 and telemetry pages with interactive architecture displays.
+- [x] G2: The site contains a working landing page plus focused Task 1 and telemetry pages with interactive architecture displays.
   CHECK: node scripts/verify_showcase.mjs
   EXPECT: SHOWCASE_VERIFICATION_PASSED
-  EVIDENCE: local verification passed; GitHub Pages deployment run 34129930360 passed.
+  EVIDENCE: local verification passed; GitHub Pages deployment run 34138583897 passed; live URL returns HTTP 200.
 
 - [x] G3: Generated ROS build, install, and log output is excluded from version control.
   CHECK: node scripts/verify_showcase.mjs
