@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+# Internal hub launcher. Users start chat_client.py; the client runs this
+# only after it finds no existing ROS CHAT HUB process.
+exec ros2 run ros_chat hub_node.py

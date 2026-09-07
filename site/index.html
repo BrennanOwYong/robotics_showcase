@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Robotics engineering portfolio by Brennan Ow Yong.">
+  <title>Robotics Showcase — Brennan Ow Yong</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="wrap nav"><a class="brand" href="index.html">ROBOTICS / SHOWCASE</a><nav><a href="#projects">Projects</a><a href="#approach">Approach</a><a href="https://github.com/BrennanOwYong/robotics_showcase">Source</a></nav></div></header>
+  <main>
+    <div class="wrap hero">
+      <div class="eyebrow">Control · Perception · Autonomy · Systems</div>
+      <h1>Robots that can sense, decide, and act.</h1>
+      <p class="lede">A portfolio of systems built around practical robotics problems. I focus on the details that turn an algorithm into a system: feedback, timing, interfaces, simulation, failure handling, and observability.</p>
+      <div class="hero-actions"><a class="button" href="#projects">Explore the builds ↓</a><a class="text-link" href="https://github.com/BrennanOwYong/robotics_showcase">Read the technical README →</a></div>
+    </div>
+    <section class="wrap metrics" aria-label="Portfolio summary"><div><strong>05</strong><span>robotics systems</span></div><div><strong>04</strong><span>ROS 2 interfaces</span></div><div><strong>01</strong><span>full autonomy chain</span></div><div><strong>∞</strong><span>ways to improve</span></div></section>
+    <section class="wrap section" id="projects">
+      <div class="section-head"><div><div class="eyebrow">Selected work</div><h2>Five connected problem spaces.</h2></div><p>Each build starts with a robotics problem statement and ends with an inspectable implementation.</p></div>
+      <div class="filterbar" aria-label="Filter projects"><span class="filter-label">View by</span><button class="filter is-active" type="button" data-filter="all">All systems</button><button class="filter" type="button" data-filter="control">Control</button><button class="filter" type="button" data-filter="perception">Perception</button><button class="filter" type="button" data-filter="autonomy">Autonomy</button></div>
+      <div class="grid">
+        <a class="card card-link" data-category="control" href="projects/pid-controller.html"><div class="eyebrow">01 / Control</div><h3>2D PID Motion Controller</h3><p>Closed-loop depth and horizontal control with bounded thrust output and tunable feedback gains.</p><div class="tags"><span class="tag">ROS 2</span><span class="tag">PID</span><span class="tag">Python</span></div></a>
+        <a class="card card-link" data-category="autonomy" href="projects/ros-chat.html"><div class="eyebrow">02 / Communication</div><h3>ROS 2 Group Chat</h3><p>A distributed hub-and-spoke system that uses ROS 2 topics and services for live communication and lifecycle events.</p><div class="tags"><span class="tag">ROS 2 Jazzy</span><span class="tag">DDS</span><span class="tag">Services</span></div></a>
+        <a class="card card-link" data-category="control" href="projects/bluerov-simulation.html"><div class="eyebrow">03 / Simulation</div><h3>BlueROV2 Simulation</h3><p>A vehicle simulation stack that connects Gazebo physics, ArduSub SITL, MAVROS, TF, and odometry.</p><div class="tags"><span class="tag">Gazebo</span><span class="tag">ArduSub</span><span class="tag">MAVROS</span></div></a>
+        <a class="card card-link" data-category="perception" href="projects/perception.html"><div class="eyebrow">04 / Perception</div><h3>YOLO/TensorRT Perception</h3><p>Lifecycle-managed image inference with ROS 2 detection messages, debug annotations, and persistent tracking.</p><div class="tags"><span class="tag">YOLO</span><span class="tag">TensorRT</span><span class="tag">OpenCV</span></div></a>
+        <a class="card card-link" data-category="autonomy" href="projects/mission-debug.html"><div class="eyebrow">05 / Autonomy</div><h3>Mission Execution and Debugging</h3><p>Behaviour-tree mission logic with retries, fallbacks, action feedback, and a path toward stronger decision observability.</p><div class="tags"><span class="tag">Behaviour Trees</span><span class="tag">Actions</span><span class="tag">AUVs</span></div></a>
+      </div>
+    </section>
+    <section class="wrap section split" id="approach"><div><div class="eyebrow">Engineering approach</div><h2>Make the loop visible.</h2><p class="section-intro">A robotics system is more than an algorithm. It is the full loop from sensor input to decision, command, physical response, and measured result.</p></div><div class="approach-list"><div><span>01</span><p><strong>Model the boundary.</strong><br>Keep sensors, decisions, commands, and simulation interfaces explicit.</p></div><div><span>02</span><p><strong>Keep it tunable.</strong><br>Expose gains, thresholds, frames, timing, and launch choices.</p></div><div><span>03</span><p><strong>Explain the outcome.</strong><br>Record enough state to understand success, failure, retry, or fallback.</p></div></div></section>
+  </main>
+  <footer class="site-footer"><div class="wrap">Built as a living robotics portfolio · <a href="https://github.com/BrennanOwYong/robotics_showcase">View the source on GitHub</a></div></footer>
+  <script src="app.js"></script>
+</body>
+</html>

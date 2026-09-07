@@ -1,0 +1,10 @@
+string requested_name
+---
+bool ok
+int32 user_number
+string user_id
+string color
+string outbound_topic
+string history_json
+int32 active_users
+string error

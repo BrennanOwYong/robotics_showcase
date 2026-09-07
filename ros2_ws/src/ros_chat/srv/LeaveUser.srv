@@ -1,0 +1,5 @@
+string user_id
+---
+bool ok
+string error
+int32 active_users

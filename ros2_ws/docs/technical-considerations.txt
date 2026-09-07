@@ -1,0 +1,440 @@
+ROS CHAT: PLAIN-ENGLISH TECHNICAL EXPLANATION
+==============================================
+
+ARCHITECTURE
+------------
+The project uses a hub-and-spoke design. The hub is one ROS 2 node running in
+its own Linux background process. Each terminal is a spoke and runs one ROS 2
+client node. Spokes do not connect directly to one another. The hub validates
+and broadcasts their records.
+
+The hub process has the Linux process name "ROS CHAT HUB". Its PID is for finding the process, but the PID is not a network address and does not
+prove that ROS 2 services are ready.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    class ChatHub(Node):
+        def __init__(self):
+            super().__init__(HUB_NODE_NAME)
+            ...
+            self.broadcast_pub = self.create_publisher(
+                String, BROADCAST_TOPIC, 50)
+
+The `ChatHub` object is the ROS 2 hub node. The Linux process that runs it is
+the background hub process.
+------------
+
+
+IMPORTANT DISTINCTIONS AND DESIGN DECISIONS
+-----------------------
+1. A ROS 2 node is a participant in the ROS graph. A Linux process is an
+   operating-system process. The hub is a linux process that runs a ROS2 node.
+
+2. A PID detects a process. A ROS 2 service check detects readiness. The first check is to prevent race conditioning while 2 terminals start the graph, allowing multiple entities to begin coordination whenever they need while robustly handling the connection processes.
+
+3. Registration inserts an active user record. It does not create the hub. Hub creation is done by the first ever client that connects (or at least tries to), sees that there isnt a hub to connect to then calls a cmmand to spin up the hub.
+
+4. The hub subscribes to one dynamically created outbound topic per client. Giving each client its own topic creates fault tolerance so that if one topic fails the rest of the clients can still communicate with each other. This is useful if each robot in the swarm is designed to react if their numbers change for any reason. 
+
+5. The hub publishes one shared broadcast record for every validated event. This saves on runtime memory so that the hub does not need to duplicate the messages it processes to every client.
+
+6. The shared broadcast topic gives every client the same data. It does not provide privacy or security. This was an accepted tradeoff given that main concern of the project was to ensure every node would be informed in a timely manner without losign data.
+------------
+
+
+STARTUP
+-------
+The client creates its ROS 2 node, then checks for a usable hub. It checks the
+hub PID file and process name, then checks ROS 2 discovery for:
+
+    /ros_chat/register_user
+
+If no hub exists, the client atomically creates:
+
+    /tmp/ros_chat_hub.starting
+
+Only the client that creates this lock starts the hub. Other clients see the
+lock and wait. This prevents two terminals from starting two hubs at the same
+time.
+
+The hub creates its publishers, subscribers, and services. It writes:
+
+    /tmp/ros_chat_hub.ready
+
+The waiting client repeatedly lets ROS 2 update its discovery graph. It then
+waits until the hub process and registration service are visible. Only then
+does it call the registration service.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/common.py
+
+    rclpy.spin_once(node, timeout_sec=0.1)
+    if hub_is_visible(node):
+        return True
+    ...
+    fd = os.open(LOCK_FILE, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    ...
+    child = subprocess.Popen(
+        ["ros2", "run", "ros_chat", "start_node"], ...)
+
+The `O_EXCL` flag makes lock creation atomic. Only one simultaneous client
+can create the startup lock.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    with open(READY_FILE, "w", encoding="utf-8") as stream:
+        stream.write(str(os.getpid()))
+
+The readiness file is written by the hub after its ROS setup code runs.
+------------
+
+
+REGISTRATION AND STORAGE
+------------------------
+
+The client calls:
+
+    /ros_chat/register_user
+
+The hub assigns a running user ID and a text colour. It creates one outbound
+topic subscription for that user and returns the topic name to the client.
+
+The hub stores active users in an in-memory Python dictionary. It stores chat
+history in an in-memory Python list. It persists chat history and the next
+user number in:
+
+    ~/.ros/ros_chat_history.json
+
+This is a JSON file, not a database server. The hub writes a temporary JSON
+file and replaces the existing file to reduce the risk of partial writes.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    self.users[user_id] = {"number": number, "color": color,
+                           "last_seen": time.time()}
+    self.history = self.history[-MAX_HISTORY:]
+    ...
+    os.replace(temporary, STATE_FILE)
+
+The dictionary is the active-user registry. The list is the in-memory chat
+history. The JSON file is the persistent storage layer.
+------------
+
+
+TOPICS AND SERVICES
+-------------------
+
+Services are used for request-and-response control operations:
+
+    /ros_chat/register_user
+    /ros_chat/leave_user
+
+Topics are used for streaming records:
+
+    /ros_chat/client/<user-id>
+        One client publishes to its own topic. The topic carries chat,
+        heartbeat, and telemetry records. The hub subscribes to this topic.
+
+    /ros_chat/broadcast
+        The hub publishes validated records here. Every client subscribes.
+
+    /ros_chat/users
+        The hub publishes the current active-user list.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    self.users_pub = self.create_publisher(String, USERS_TOPIC, 10)
+    self.broadcast_pub = self.create_publisher(String, BROADCAST_TOPIC, 50)
+    ...
+    self.create_service(RegisterUser, REGISTER_SERVICE, self.register_user)
+    self.create_service(LeaveUser, LEAVE_SERVICE, self.leave_user)
+
+The service request and response definitions are in:
+
+    ros2_ws/src/ros_chat/srv/RegisterUser.srv
+    ros2_ws/src/ros_chat/srv/LeaveUser.srv
+------------
+
+MESSAGE FLOW
+------------
+
+The project uses one outbound topic per client and one shared hub broadcast
+topic for fault tolerance. If 1 message topic fails the others still can communicate. 
+
+For a chat message:
+
+    Terminal 1 ---[/ros_chat/client/user-1]---> Hub
+    Hub ---[/ros_chat/broadcast]---> Terminal 1, Terminal 2, Terminal 3
+
+The hub identifies the sender from the subscription callback that belongs to
+the client's topic. It also checks that the user ID in the JSON record matches
+that topic owner.
+
+The hub adds the assigned colour and timestamp. It then publishes one record
+on the broadcast topic. Every client receives the same record, including the
+sender. The sender does not create a local copy, so the message appears once.
+
+The hub has one broadcast publish operation for each validated record. DDS
+delivers that topic to all client subscriptions.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    self.create_subscription(
+        String, BROADCAST_TOPIC, self.on_broadcast, 50)
+    ...
+    self.outbound.publish(String(data=message_json(
+        "chat", user_id=self.user_id, text=text)))
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    self.client_subscriptions[user_id] = self.create_subscription(
+        String, topic,
+        lambda message, sender_id=user_id:
+            self.on_client_message(sender_id, message), 50)
+    ...
+    self.broadcast_pub.publish(String(data=json.dumps(
+        item, separators=(",", ":"))))
+
+The client publishes to its assigned outbound topic. The hub subscribes to
+that topic and publishes one validated record on the shared broadcast topic.
+------------
+
+
+TASK 1 REQUIREMENTS AND BONUS TIERS
+-----------------------------------
+Task 1 requires a group chat in which each ROS node represents one user. The
+current design satisfies that requirement because each terminal runs its own
+client node and all clients receive records from the shared broadcast topic.
+
+Task 1 also requires the total number of users to be tracked and displayed.
+The hub maintains the active-user registry and publishes it on:
+
+    /ros_chat/users
+
+Each client displays the current number of active users.
+
+Task 1 requires the display to keep only the latest ten group messages. The
+client keeps one ten-record display history. Chat, system, and telemetry
+records use the same rendering path. The hub also keeps the latest ten chat
+records in its persistent history.
+
+Task 1 identifies two bonus tiers.
+
+Tier 1: author differentiation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The project completes Tier 1 by assigning a colour to every running user ID.
+The hub includes the sender colour in each broadcast record. A client renders
+its own record in white and remote author records in the colour assigned by the
+hub. System records use a neutral system colour. Telemetry records use a
+separate telemetry display style.
+
+Tier 2: ROS Action or Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The project completes Tier 2 with ROS 2 services. The registration service is:
+
+    /ros_chat/register_user
+
+The departure service is:
+
+    /ros_chat/leave_user
+
+These services handle short request-and-response control operations. Topics
+handle continuous chat, heartbeat, system, and telemetry data. A ROS Action is
+not required for this application because registration and departure finish
+quickly and do not need progress feedback or cancellation goals.
+
+The hub-and-spoke startup process, PID checks, startup lock, heartbeat cleanup,
+and telemetry broadcast are extensions beyond the Task 1 core requirements.
+They support reliable operation and the robot-fleet use case.
+
+CORE GROUP CHAT CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    def on_users(self, message):
+        self.users = json.loads(message.data)
+        self.active_users = len(self.users)
+        ...
+
+The client receives the active-user list and displays its length.
+
+CORE HISTORY CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    def add_history_item(self, item):
+        self.history.append(item)
+        self.history = self.history[-MAX_HISTORY:]
+        self.dirty = True
+
+`MAX_HISTORY` is 10 in `ros_chat_runtime/common.py`.
+
+TIER 1 CODE - ros2_ws/src/ros_chat/ros_chat_runtime/common.py
+
+    COLORS = ["red", "green", "yellow", "blue",
+              "magenta", "cyan", "white"]
+
+TIER 1 CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    number = self.next_number
+    user_id = "user-{}".format(number)
+    color = COLORS[(number - 1) % len(COLORS)]
+    ...
+    item = {"kind": "chat", "user_id": user_id,
+            "color": self.users[user_id]["color"], ...}
+
+TIER 1 CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    color = "white" if item["user_id"] == self.user_id \
+        else item.get("color", "white")
+    print("{}[{}]...".format(ansi(color), item["user_id"]))
+
+The hub assigns the colour. The hub puts the colour in the broadcast record.
+The client uses that colour when it renders a remote author. This directly
+implements Task 1 Tier 1.
+
+TIER 2 CODE - ros2_ws/src/ros_chat/srv/RegisterUser.srv
+
+    string requested_name
+    ---
+    bool ok
+    int32 user_number
+    string user_id
+    string color
+    string outbound_topic
+    ...
+
+TIER 2 CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    self.register = self.create_client(RegisterUser, REGISTER_SERVICE)
+    ...
+    future = self.register.call_async(request)
+    rclpy.spin_until_future_complete(self, future)
+
+TIER 2 CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    self.create_service(RegisterUser, REGISTER_SERVICE, self.register_user)
+    self.create_service(LeaveUser, LEAVE_SERVICE, self.leave_user)
+
+The project uses ROS 2 Services for Tier 2. It does not use an Action because
+registration and departure are short request-and-response operations.
+
+
+TELEMETRY AND ROBOT FAULTS
+---------------------------
+
+A client can publish a telemetry record on its own outbound topic. For
+example, a robot can report that it lost formation:
+
+    {"kind":"telemetry", "user_id":"user-2",
+     "code":"FORMATION_LOST", "text":"Robot left formation"}
+
+The hub validates the sender and publishes the telemetry record on the shared
+broadcast topic. Every client can display or process it.
+
+This supports a fleet rule such as: a robot must tolerate another robot
+leaving formation. The event is visible to all robots, so each robot can log
+it and select an appropriate response.
+
+The broadcast topic is not a security boundary. ROS 2 topic names and JSON
+fields do not provide authentication or encryption. A client that can join the
+ROS 2 domain may inspect the topic.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    def on_telemetry(self, user_id, payload):
+        item = {"kind": "telemetry", "user_id": user_id,
+                "code": str(payload.get("code", "")), ...}
+        self.broadcast_pub.publish(String(data=json.dumps(item, ...)))
+
+Telemetry uses the same client-to-hub and hub-to-all-clients topic path.
+
+
+SYSTEM EVENTS AND RENDERING
+---------------------------
+
+Join, leave, chat, and telemetry records all use `/ros_chat/broadcast`.
+
+The client callback parses each record and adds it to one ten-record history.
+The callback sets a dirty flag. The main loop calls `rclpy.spin_once()` to
+process ROS 2 callbacks. If the dirty flag is set, the client redraws the
+terminal.
+
+The renderer sorts the common history by timestamp. System records therefore
+appear in their chronological position rather than always at the bottom.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    def on_broadcast(self, message):
+        item = json.loads(message.data)
+        if item.get("kind") not in ("chat", "system", "telemetry"):
+            return
+        self.add_history_item(item)
+    ...
+    rclpy.spin_once(self, timeout_sec=0.05)
+    if self.dirty:
+        self.render()
+
+The callback changes state and sets `dirty`. The main loop detects that state
+change and redraws the terminal.
+
+
+HEARTBEATS AND DEPARTURE
+------------------------
+
+The client sends heartbeat records on its own outbound topic. The hub updates
+the client's last-seen time for every valid record. If the client sends Ctrl-C,
+the cleanup code calls `/ros_chat/leave_user`.
+
+The hub publishes a leave record to the remaining clients. If no users remain,
+the hub exits and removes its runtime files. If a client is killed with
+SIGKILL or loses power, its cleanup hook cannot run. The hub removes it after
+the heartbeat timeout.
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+
+    self.outbound.publish(String(data=message_json(
+        "heartbeat", user_id=self.user_id)))
+    ...
+    future = self.leave_client.call_async(request)
+
+MAIN CODE - ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+
+    if kind == "heartbeat":
+        return
+    ...
+    if now - data.get("last_seen", 0) > HEARTBEAT_TIMEOUT:
+        ...
+        self.publish_system("{} left the chat (heartbeat timeout)".format(user_id))
+
+The heartbeat updates liveness. The leave service handles normal Ctrl-C
+shutdown. The timeout handles clients that cannot run cleanup code.
+
+
+IMPORTANT DISTINCTIONS
+-----------------------
+
+1. A ROS 2 node is a participant in the ROS graph. A Linux process is an
+   operating-system process. The hub is both.
+
+2. A PID detects a process. A ROS 2 service check detects readiness.
+
+3. Registration inserts an active user record. It does not create the hub.
+
+4. The hub subscribes to one dynamically created outbound topic per client.
+
+5. The hub publishes one shared broadcast record for every validated event.
+
+6. The shared broadcast topic gives every client the same data. It does not
+   provide privacy or security.
+
+CODE LOCATION SUMMARY
+---------------------
+
+The main runtime logic is in:
+
+    ros2_ws/src/ros_chat/ros_chat_runtime/chat_client.py
+    ros2_ws/src/ros_chat/ros_chat_runtime/hub_node.py
+    ros2_ws/src/ros_chat/ros_chat_runtime/common.py
+
+The ROS 2 service interfaces are in:
+
+    ros2_ws/src/ros_chat/srv/RegisterUser.srv
+    ros2_ws/src/ros_chat/srv/LeaveUser.srv

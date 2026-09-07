@@ -1,0 +1,41 @@
+# ROS 2 and Python generated output
+**/build/
+**/install/
+**/log/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Local agent and editor state
+.agents/
+.codex/
+.claude/
+.unlazy/
+.unlazy-hook-state.json
+.vscode/
+.idea/
+
+# Nested repository metadata. This workspace is published as one repository.
+**/.git/
+
+# Local and oversized evidence files
+*.mp4
+*.mov
+mission_debug/mission_debug_context.txt
+tasklist.md
+mission_debug/cc_attempt/
+mission_debug/codex_attempt/
+mission_debug/research/
+mission_debug/tools/
+mission_debug/repos/
+bluerov_ws/
+
+# Local reference material and submission artifacts
+*.pdf
+**/submission_notes.txt
+**/TIER2_NOTE.md
+
+# OS files
+.DS_Store
+Thumbs.db

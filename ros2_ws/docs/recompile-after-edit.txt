@@ -1,0 +1,123 @@
+ROS CHAT: RECOMPILE AFTER EDITING CODE
+=======================================
+
+Use this procedure after editing files under:
+
+    ros2_ws/src/ros_chat
+
+
+1. Open a terminal and enter the workspace
+-------------------------------------------
+
+    cd /mnt/c/Users/brenn/Documents/Hornet/ros2_ws
+
+
+2. Rebuild the package
+----------------------
+
+Run the rebuild script:
+
+    ./scripts/rebuild
+
+The script performs these actions:
+
+- Sources ROS 2 Jazzy.
+- Builds the ros_chat package.
+- Uses merged installation.
+- Uses symlink installation.
+- Rebuilds custom ROS 2 service interfaces.
+- Sources the package overlay inside the script.
+
+The script stops if the build fails.
+
+
+3. Source the rebuilt package
+-----------------------------
+
+After the script finishes, source the overlay in the terminal where you will
+run the chat client:
+
+    source /opt/ros/jazzy/setup.bash
+    source install/share/ros_chat/local_setup.bash
+
+The first command makes ROS 2 Jazzy available. The second command makes the
+rebuilt ros_chat package available.
+
+
+4. Start a client
+-----------------
+
+    ros2 run ros_chat chat_client.py --name alice
+
+Use a different terminal for each client. Source ROS 2 and the workspace in
+each terminal before starting a client.
+
+
+SHORT VERSION
+-------------
+
+From the workspace root:
+
+    ./scripts/rebuild
+    source /opt/ros/jazzy/setup.bash
+    source install/share/ros_chat/local_setup.bash
+    ros2 run ros_chat chat_client.py --name alice
+
+
+SOURCE COMMAND OPTION
+---------------------
+
+You can source the rebuild script instead of executing it:
+
+    source ./scripts/rebuild
+
+This runs the build and keeps the ROS 2 and package environment changes in the
+current terminal. Then start the client:
+
+    ros2 run ros_chat chat_client.py --name alice
+
+
+WHICH FILES TO EDIT
+-------------------
+
+Edit only files under:
+
+    ros2_ws/src/ros_chat
+
+Do not edit files under:
+
+    ros2_ws/build
+    ros2_ws/install
+    ros2_ws/log
+
+Those directories contain generated build output.
+
+
+IF THE BUILD FAILS
+------------------
+
+Read the first error in the build output. Do not edit generated files to fix
+the error.
+
+For a stale build, remove only the generated package directories:
+
+    cd /mnt/c/Users/brenn/Documents/Hornet/ros2_ws
+    rm -rf build/ros_chat install log
+    ./scripts/rebuild
+
+This removes generated output only. It does not remove source code under
+src/ros_chat.
+
+
+VERIFY THE REBUILT SERVICE INTERFACE
+------------------------------------
+
+After sourcing the rebuilt overlay, run:
+
+    ros2 interface show ros_chat/srv/RegisterUser
+
+The current interface must contain:
+
+    string outbound_topic
+
+This confirms that the current service definition was rebuilt.
