@@ -26,7 +26,8 @@ for (const file of requiredFiles.filter((item) => item.startsWith("site/") && it
   if (!content.includes("styles.css")) throw new Error(`${file} does not load the shared stylesheet`);
 }
 const index = readFileSync(join(root, "site/index.html"), "utf8");
-if (!index.includes("app.js") || !index.includes("view-tab") || !index.includes("telemetry-output")) {
+const task1 = readFileSync(join(root, "site/task1.html"), "utf8");
+if (!index.includes("app.js") || !index.includes("view-tab") || !index.includes("telemetry-output") || !task1.includes("data-animation") || !task1.includes("data-action=\"next\"")) {
   throw new Error("Landing page does not load the interaction script");
 }
 
